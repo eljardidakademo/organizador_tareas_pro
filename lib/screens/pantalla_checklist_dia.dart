@@ -736,7 +736,7 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                   // Con el filtro activo no se permite arrastrar (los índices
                   // visibles no coinciden con los reales de dia.tareas).
                   return ListView.builder(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
                     itemCount: tareasVisibles.length,
                     itemBuilder: (context, index) =>
                         _construirFilaTarea(tareasVisibles[index], index, permitirArrastrar: false),
@@ -744,7 +744,7 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                 }
 
                 return ReorderableListView.builder(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
                   itemCount: tareasVisibles.length,
                   onReorder: _reordenar,
                   itemBuilder: (context, index) =>

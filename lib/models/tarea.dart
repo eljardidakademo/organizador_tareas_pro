@@ -59,8 +59,10 @@ class Tarea {
   double get progresoTiempo =>
       duracionMinutos == 0 ? 0 : (tiempoRealMinutos / duracionMinutos).clamp(0, 999) as double;
 
+  /// Registra una sesión que acaba de terminar: empezó hace [minutos] minutos.
   void registrarSesion(int minutos, {String origen = 'manual'}) {
-    sesiones.add(SesionTiempo(inicio: DateTime.now(), minutos: minutos, origen: origen));
+    final inicio = DateTime.now().subtract(Duration(minutes: minutos));
+    sesiones.add(SesionTiempo(inicio: inicio, minutos: minutos, origen: origen));
   }
 
   Map<String, dynamic> toMap() => {

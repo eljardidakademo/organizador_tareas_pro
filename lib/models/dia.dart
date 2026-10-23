@@ -1,5 +1,4 @@
 import 'tarea.dart';
-import 'configuracion_app.dart';
 import '../i18n/traducciones.dart';
 
 class Dia {

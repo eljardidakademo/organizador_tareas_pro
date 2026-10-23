@@ -89,6 +89,49 @@ class ConfiguracionApp extends ChangeNotifier {
   /// Atajo para traducir cualquier texto de la app según el idioma elegido.
   String t(String clave) => Traducciones.t(idioma, clave);
 
+  /// Convierte la configuración en un mapa para guardarla (en el móvil o en
+  /// la copia de seguridad). Las claves no deben cambiar: así se siguen
+  /// leyendo bien los datos guardados con versiones anteriores.
+  Map<String, dynamic> toMap() => {
+        'horaInicioHora': horaInicioDefecto.hour,
+        'horaInicioMinuto': horaInicioDefecto.minute,
+        'horaFinHora': horaFinDefecto.hour,
+        'horaFinMinuto': horaFinDefecto.minute,
+        'avisoHuecosActivado': avisoHuecosActivado,
+        'modoTema': modoTema.index,
+        'colorFondo': colorFondo,
+        'fuente': fuente,
+        'escalaTexto': escalaTexto,
+        'formaTarjeta': formaTarjeta.index,
+        'idioma': idioma.index,
+        'pomodoroTrabajoMin': pomodoroTrabajoMin,
+        'pomodoroDescansoCortoMin': pomodoroDescansoCortoMin,
+        'pomodoroDescansoLargoMin': pomodoroDescansoLargoMin,
+        'pomodoroCiclosParaDescansoLargo': pomodoroCiclosParaDescansoLargo,
+        'pomodoroObjetivoDiario': pomodoroObjetivoDiario,
+      };
+
+  /// Aplica sobre esta misma instancia los valores de un mapa creado con
+  /// [toMap] (sin reemplazarla, para no perder sus listeners). Si falta
+  /// algún valor, se usa el de por defecto.
+  void aplicarMap(Map<String, dynamic> m) {
+    horaInicioDefecto =
+        TimeOfDay(hour: m['horaInicioHora'] ?? 8, minute: m['horaInicioMinuto'] ?? 0);
+    horaFinDefecto = TimeOfDay(hour: m['horaFinHora'] ?? 22, minute: m['horaFinMinuto'] ?? 0);
+    avisoHuecosActivado = m['avisoHuecosActivado'] ?? false;
+    modoTema = ModoTema.values[m['modoTema'] ?? ModoTema.sistema.index];
+    colorFondo = m['colorFondo'];
+    fuente = m['fuente'] ?? 'Roboto';
+    escalaTexto = (m['escalaTexto'] ?? 1.0).toDouble();
+    formaTarjeta = FormaTarjeta.values[m['formaTarjeta'] ?? FormaTarjeta.redondeada.index];
+    idioma = Idioma.values[m['idioma'] ?? Idioma.castellano.index];
+    pomodoroTrabajoMin = m['pomodoroTrabajoMin'] ?? 25;
+    pomodoroDescansoCortoMin = m['pomodoroDescansoCortoMin'] ?? 5;
+    pomodoroDescansoLargoMin = m['pomodoroDescansoLargoMin'] ?? 15;
+    pomodoroCiclosParaDescansoLargo = m['pomodoroCiclosParaDescansoLargo'] ?? 4;
+    pomodoroObjetivoDiario = m['pomodoroObjetivoDiario'] ?? 8;
+  }
+
   /// Se llama tras mutar cualquier campo, para que la app entera (tema,
   /// pantallas abiertas) se repinte con los valores nuevos.
   void notificar() => notifyListeners();

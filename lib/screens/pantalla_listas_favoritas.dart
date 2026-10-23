@@ -231,7 +231,7 @@ class _PantallaListasFavoritasState extends State<PantallaListasFavoritas> {
       body: widget.listas.isEmpty
           ? Center(child: Text(_t('aun_no_listas')))
           : ListView(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
               children: widget.listas.map((lista) {
                 final color = Color(lista.colorValue);
                 return Card(

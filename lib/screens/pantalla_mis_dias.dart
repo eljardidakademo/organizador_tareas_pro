@@ -361,7 +361,7 @@ class _PantallaMisDiasState extends State<PantallaMisDias> {
     return widget.dias.isEmpty
         ? Center(child: Text(widget.configuracion.t('aun_no_dias')))
         : ListView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
             itemCount: widget.dias.length,
             itemBuilder: (context, index) {
               final dia = widget.dias[index];

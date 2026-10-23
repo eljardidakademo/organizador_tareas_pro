@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import '../models/tarea.dart';
 import '../models/lista_favorita.dart';
 import '../models/categoria.dart';
 import '../models/configuracion_app.dart';

@@ -115,7 +115,7 @@ class _PantallaCategoriasState extends State<PantallaCategorias> {
       body: widget.categorias.isEmpty
           ? Center(child: Text(_t('aun_no_categorias')))
           : ListView(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
               children: widget.categorias.map((categoria) {
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 6),

@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/dia.dart';
 import '../models/lista_favorita.dart';
 import '../models/categoria.dart';
 import '../models/rutina.dart';
 import '../models/configuracion_app.dart';
-import '../i18n/traducciones.dart';
 
 /// Guarda y recupera los datos de la app en el almacenamiento local del
 /// dispositivo (SharedPreferences), para que no se pierdan al cerrar la app.
@@ -80,25 +78,7 @@ class ServicioPersistencia {
 
   static Future<void> guardarConfiguracion(ConfiguracionApp c) async {
     final prefs = await SharedPreferences.getInstance();
-    final mapa = {
-      'horaInicioHora': c.horaInicioDefecto.hour,
-      'horaInicioMinuto': c.horaInicioDefecto.minute,
-      'horaFinHora': c.horaFinDefecto.hour,
-      'horaFinMinuto': c.horaFinDefecto.minute,
-      'avisoHuecosActivado': c.avisoHuecosActivado,
-      'modoTema': c.modoTema.index,
-      'colorFondo': c.colorFondo,
-      'fuente': c.fuente,
-      'escalaTexto': c.escalaTexto,
-      'formaTarjeta': c.formaTarjeta.index,
-      'idioma': c.idioma.index,
-      'pomodoroTrabajoMin': c.pomodoroTrabajoMin,
-      'pomodoroDescansoCortoMin': c.pomodoroDescansoCortoMin,
-      'pomodoroDescansoLargoMin': c.pomodoroDescansoLargoMin,
-      'pomodoroCiclosParaDescansoLargo': c.pomodoroCiclosParaDescansoLargo,
-      'pomodoroObjetivoDiario': c.pomodoroObjetivoDiario,
-    };
-    await prefs.setString(_claveConfiguracion, jsonEncode(mapa));
+    await prefs.setString(_claveConfiguracion, jsonEncode(c.toMap()));
   }
 
   /// Aplica los valores guardados sobre una instancia ya creada de
@@ -107,21 +87,7 @@ class ServicioPersistencia {
     final prefs = await SharedPreferences.getInstance();
     final json = prefs.getString(_claveConfiguracion);
     if (json == null) return;
-    final Map<String, dynamic> m = jsonDecode(json);
-    c.horaInicioDefecto = TimeOfDay(hour: m['horaInicioHora'], minute: m['horaInicioMinuto']);
-    c.horaFinDefecto = TimeOfDay(hour: m['horaFinHora'], minute: m['horaFinMinuto']);
-    c.avisoHuecosActivado = m['avisoHuecosActivado'] ?? false;
-    c.modoTema = ModoTema.values[m['modoTema'] ?? ModoTema.sistema.index];
-    c.colorFondo = m['colorFondo'];
-    c.fuente = m['fuente'] ?? 'Roboto';
-    c.escalaTexto = (m['escalaTexto'] ?? 1.0).toDouble();
-    c.formaTarjeta = FormaTarjeta.values[m['formaTarjeta'] ?? FormaTarjeta.redondeada.index];
-    c.idioma = Idioma.values[m['idioma'] ?? Idioma.castellano.index];
-    c.pomodoroTrabajoMin = m['pomodoroTrabajoMin'] ?? 25;
-    c.pomodoroDescansoCortoMin = m['pomodoroDescansoCortoMin'] ?? 5;
-    c.pomodoroDescansoLargoMin = m['pomodoroDescansoLargoMin'] ?? 15;
-    c.pomodoroCiclosParaDescansoLargo = m['pomodoroCiclosParaDescansoLargo'] ?? 4;
-    c.pomodoroObjetivoDiario = m['pomodoroObjetivoDiario'] ?? 8;
+    c.aplicarMap(jsonDecode(json));
   }
 
   // --- Historial global de Pomodoros completados (para el objetivo diario
@@ -134,6 +100,13 @@ class ServicioPersistencia {
     final List<dynamic> lista = json == null ? [] : jsonDecode(json);
     lista.add(DateTime.now().toIso8601String());
     await prefs.setString(_clavePomodoros, jsonEncode(lista));
+  }
+
+  /// Sustituye el historial completo (se usa al restaurar una copia).
+  static Future<void> guardarPomodorosCompletados(List<DateTime> pomodoros) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        _clavePomodoros, jsonEncode(pomodoros.map((p) => p.toIso8601String()).toList()));
   }
 
   static Future<List<DateTime>> cargarPomodorosCompletados() async {

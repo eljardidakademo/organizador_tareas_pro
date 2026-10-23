@@ -235,7 +235,7 @@ class _PantallaRutinasState extends State<PantallaRutinas> {
       body: widget.rutinas.isEmpty
           ? Center(child: Text(_t('aun_no_rutinas')))
           : ListView(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 96),
               children: widget.rutinas.map((rutina) {
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 6),
