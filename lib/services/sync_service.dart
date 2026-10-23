@@ -87,7 +87,7 @@ class ServicioSync {
       await _apuntarSyncCorrecta();
       return ResultadoSync.sinCambios;
     } catch (e) {
-      ultimoError = e.toString();
+      ultimoError = _explicarError(e);
       return ResultadoSync.error;
     }
   }
@@ -121,7 +121,7 @@ class ServicioSync {
       }
       throw Exception(respuesta['error'] ?? 'respuesta desconocida');
     } catch (e) {
-      ultimoError = e.toString();
+      ultimoError = _explicarError(e);
       return ResultadoSync.error;
     }
   }
@@ -136,7 +136,7 @@ class ServicioSync {
           Map<String, dynamic>.from(remoto['datos']), ((remoto['modificado'] ?? 0) as num).toInt());
       return ResultadoSync.descargado;
     } catch (e) {
-      ultimoError = e.toString();
+      ultimoError = _explicarError(e);
       return ResultadoSync.error;
     }
   }
@@ -233,6 +233,23 @@ class ServicioSync {
       respuesta = await http.get(Uri.parse(destino)).timeout(const Duration(seconds: 30));
     }
     return _decodificar(respuesta);
+  }
+
+  /// Texto corto y comprensible para mostrar en Ajustes (sin la URL ni la
+  /// clave, que pueden aparecer en el mensaje original).
+  static String _explicarError(Object e) {
+    final texto = e.toString();
+    if (texto.contains('clave incorrecta')) return 'clave incorrecta';
+    if (texto.contains('respuesta no válida')) {
+      return 'respuesta no válida (revisa que el script esté publicado para "Cualquier usuario")';
+    }
+    if (texto.contains('HTTP ')) return texto.substring(texto.indexOf('HTTP '));
+    if (e is TimeoutException) return 'la nube tarda demasiado en responder';
+    if (e is http.ClientException || texto.contains('SocketException')) {
+      return 'no se puede conectar (¿hay internet?)';
+    }
+    if (texto.contains('FormatException') || texto.contains('Invalid')) return 'dirección no válida';
+    return texto.length > 120 ? '${texto.substring(0, 120)}…' : texto;
   }
 
   static Map<String, dynamic> _decodificar(http.Response respuesta) {
