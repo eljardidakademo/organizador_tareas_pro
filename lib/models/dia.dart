@@ -24,14 +24,15 @@ class Dia {
   bool esMismaFecha(DateTime otra) =>
       fecha.year == otra.year && fecha.month == otra.month && fecha.day == otra.day;
 
-  /// Minutos libres entre el final de la última tarea (o la hora de inicio,
-  /// si no hay tareas) y la hora de fin de jornada. Negativo si te pasas.
-  /// Null si este día no tiene activado el aviso de huecos libres.
+  /// Minutos libres entre el final de la tarea que acaba más tarde (o la
+  /// hora de inicio, si no hay tareas) y la hora de fin de jornada.
+  /// Negativo si te pasas. Null si este día no tiene activado el aviso.
   int? get minutosLibres {
     if (horaFinDia == null) return null;
-    final finOcupado = tareas.isEmpty
-        ? horaInicio
-        : tareas.last.horaInicio.add(Duration(minutes: tareas.last.duracionMinutos));
+    var finOcupado = horaInicio;
+    for (final t in tareas) {
+      if (t.horaFin.isAfter(finOcupado)) finOcupado = t.horaFin;
+    }
     return horaFinDia!.difference(finOcupado).inMinutes;
   }
 

@@ -161,7 +161,11 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
   Future<void> _abrirPantallaListasFavoritas() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PantallaListasFavoritas(listas: widget.listasFavoritas, configuracion: widget.configuracion),
+        builder: (_) => PantallaListasFavoritas(
+          listas: widget.listasFavoritas,
+          categorias: widget.categorias,
+          configuracion: widget.configuracion,
+        ),
       ),
     );
     setState(() {});
@@ -303,7 +307,12 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
 
     setState(() {
       lista.tareas.add(
-        TareaGuardada(nombre: tarea.nombre, duracionMinutos: tarea.duracionMinutos),
+        TareaGuardada(
+          nombre: tarea.nombre,
+          duracionMinutos: tarea.duracionMinutos,
+          prioridadAlta: tarea.prioridadAlta,
+          categoriaId: tarea.categoriaId,
+        ),
       );
     });
     ServicioPersistencia.guardarListasFavoritas(widget.listasFavoritas);

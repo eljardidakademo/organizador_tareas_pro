@@ -87,14 +87,17 @@ class ServicioEstadisticas {
   }
 
   /// Hora del día (0-23) donde más minutos reales se han invertido en total,
-  /// o null si no hay datos suficientes.
+  /// o null si no hay datos suficientes. Usa la hora en la que de verdad se
+  /// trabajó (el inicio de cada sesión), no la hora prevista de la tarea.
   static int? franjaMasProductiva(List<Dia> dias) {
     final porHora = <int, int>{};
     for (final dia in dias) {
       for (final tarea in dia.tareas) {
-        if (tarea.tiempoRealMinutos == 0) continue;
-        final hora = tarea.horaInicio.hour;
-        porHora[hora] = (porHora[hora] ?? 0) + tarea.tiempoRealMinutos;
+        for (final s in tarea.sesiones) {
+          if (s.minutos <= 0) continue;
+          final hora = s.inicio.hour;
+          porHora[hora] = (porHora[hora] ?? 0) + s.minutos;
+        }
       }
     }
     if (porHora.isEmpty) return null;
@@ -137,10 +140,16 @@ class ServicioEstadisticas {
     return (mejor, mejorValor);
   }
 
-  /// Racha de días consecutivos (terminando en el día más reciente con
-  /// datos) en los que se completó al menos una tarea.
+  /// Racha de días consecutivos en los que se completó al menos una tarea.
+  /// Cuenta hacia atrás desde hoy (o desde ayer, si hoy aún no has
+  /// completado nada): si dejas pasar un día entero sin completar tareas,
+  /// la racha vuelve a 0.
   static int rachaDiasConTareasCompletadas(List<Dia> dias) {
-    final diasOrdenados = [...dias]..sort((a, b) => b.fecha.compareTo(a.fecha));
+    final hoy = _soloFecha(DateTime.now());
+    final ayer = hoy.subtract(const Duration(days: 1));
+    // Solo cuentan los días hasta hoy (los planificados a futuro no).
+    final diasOrdenados = dias.where((d) => !_soloFecha(d.fecha).isAfter(hoy)).toList()
+      ..sort((a, b) => b.fecha.compareTo(a.fecha));
     int racha = 0;
     DateTime? esperado;
     for (final dia in diasOrdenados) {
@@ -150,6 +159,8 @@ class ServicioEstadisticas {
         break;
       }
       final fecha = _soloFecha(dia.fecha);
+      // El primer día con tareas completadas debe ser hoy o ayer.
+      if (esperado == null && fecha != hoy && fecha != ayer) return 0;
       if (esperado == null || fecha == esperado) {
         racha++;
         esperado = fecha.subtract(const Duration(days: 1));

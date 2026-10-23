@@ -416,6 +416,52 @@ class Traducciones {
       Idioma.castellano: 'Forma del cuadro de las tareas',
       Idioma.ingles: 'Task card shape',
     },
+    // --- Listas predefinidas (se crean la primera vez que se abre la app) ---
+    'lp_trabajo': {
+      Idioma.valenciano: 'Treball',
+      Idioma.castellano: 'Trabajo',
+      Idioma.ingles: 'Work',
+    },
+    'lp_casa': {
+      Idioma.valenciano: 'Casa',
+      Idioma.castellano: 'Casa',
+      Idioma.ingles: 'Home',
+    },
+    'lp_deporte': {
+      Idioma.valenciano: 'Esport',
+      Idioma.castellano: 'Deporte',
+      Idioma.ingles: 'Sport',
+    },
+    'lp_revisar_correo': {
+      Idioma.valenciano: 'Revisar el correu',
+      Idioma.castellano: 'Revisar correo',
+      Idioma.ingles: 'Check email',
+    },
+    'lp_reunion_equipo': {
+      Idioma.valenciano: "Reunió d'equip",
+      Idioma.castellano: 'Reunión de equipo',
+      Idioma.ingles: 'Team meeting',
+    },
+    'lp_hacer_compra': {
+      Idioma.valenciano: 'Fer la compra',
+      Idioma.castellano: 'Hacer la compra',
+      Idioma.ingles: 'Do the shopping',
+    },
+    'lp_limpiar_cocina': {
+      Idioma.valenciano: 'Netejar la cuina',
+      Idioma.castellano: 'Limpiar cocina',
+      Idioma.ingles: 'Clean the kitchen',
+    },
+    'lp_correr': {
+      Idioma.valenciano: 'Córrer',
+      Idioma.castellano: 'Correr',
+      Idioma.ingles: 'Go for a run',
+    },
+    'lp_estirar': {
+      Idioma.valenciano: 'Estiraments',
+      Idioma.castellano: 'Estirar',
+      Idioma.ingles: 'Stretch',
+    },
     'cuadrada': {
       Idioma.valenciano: 'Quadrada',
       Idioma.castellano: 'Cuadrada',

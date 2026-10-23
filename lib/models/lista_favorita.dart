@@ -1,17 +1,32 @@
+import '../i18n/traducciones.dart';
+
 class TareaGuardada {
   String nombre;
   int duracionMinutos;
+  bool prioridadAlta;
+  String? categoriaId;
 
-  TareaGuardada({required this.nombre, required this.duracionMinutos});
+  TareaGuardada({
+    required this.nombre,
+    required this.duracionMinutos,
+    this.prioridadAlta = false,
+    this.categoriaId,
+  });
 
   Map<String, dynamic> toMap() => {
         'nombre': nombre,
         'duracionMinutos': duracionMinutos,
+        'prioridadAlta': prioridadAlta,
+        'categoriaId': categoriaId,
       };
 
+  // Las listas guardadas con versiones anteriores no traen prioridad ni
+  // categoría: se leen con los valores por defecto.
   factory TareaGuardada.fromMap(Map<String, dynamic> map) => TareaGuardada(
         nombre: map['nombre'],
         duracionMinutos: map['duracionMinutos'],
+        prioridadAlta: map['prioridadAlta'] ?? false,
+        categoriaId: map['categoriaId'],
       );
 }
 
@@ -74,36 +89,40 @@ const List<String> paletaIconosListas = [
 ];
 
 /// Listas predefinidas de ejemplo, se cargan la primera vez que el usuario
-/// abre la app (luego puede editarlas o añadir las suyas propias).
-List<ListaFavorita> listasPredefinidas() => [
+/// abre la app (luego puede editarlas o añadir las suyas propias). Se crean
+/// en el idioma de la app en ese momento.
+List<ListaFavorita> listasPredefinidas(Idioma idioma) {
+  String t(String clave) => Traducciones.t(idioma, clave);
+  return [
       ListaFavorita(
         id: 'trabajo',
-        nombre: 'Trabajo',
+        nombre: t('lp_trabajo'),
         icono: 'work',
         colorValue: 0xFF3B82F6,
         tareas: [
-          TareaGuardada(nombre: 'Revisar correo', duracionMinutos: 15),
-          TareaGuardada(nombre: 'Reunión de equipo', duracionMinutos: 30),
+          TareaGuardada(nombre: t('lp_revisar_correo'), duracionMinutos: 15),
+          TareaGuardada(nombre: t('lp_reunion_equipo'), duracionMinutos: 30),
         ],
       ),
       ListaFavorita(
         id: 'casa',
-        nombre: 'Casa',
+        nombre: t('lp_casa'),
         icono: 'home',
         colorValue: 0xFF22C55E,
         tareas: [
-          TareaGuardada(nombre: 'Hacer la compra', duracionMinutos: 40),
-          TareaGuardada(nombre: 'Limpiar cocina', duracionMinutos: 20),
+          TareaGuardada(nombre: t('lp_hacer_compra'), duracionMinutos: 40),
+          TareaGuardada(nombre: t('lp_limpiar_cocina'), duracionMinutos: 20),
         ],
       ),
       ListaFavorita(
         id: 'deporte',
-        nombre: 'Deporte',
+        nombre: t('lp_deporte'),
         icono: 'fitness_center',
         colorValue: 0xFFF97316,
         tareas: [
-          TareaGuardada(nombre: 'Correr', duracionMinutos: 30),
-          TareaGuardada(nombre: 'Estirar', duracionMinutos: 10),
+          TareaGuardada(nombre: t('lp_correr'), duracionMinutos: 30),
+          TareaGuardada(nombre: t('lp_estirar'), duracionMinutos: 10),
         ],
       ),
     ];
+}

@@ -12,18 +12,55 @@ class Planificador {
     // Aseguramos el orden por el campo `orden`
     tareas.sort((a, b) => a.orden.compareTo(b.orden));
 
+    final fijas = tareas.where((t) => t.horaFija).toList();
     DateTime horaActual = horaInicioDia;
     for (var tarea in tareas) {
       if (tarea.horaFija) {
-        // Inamovible: no se toca su horaInicio, pero el cursor salta a
-        // partir de su hora + duración para las tareas siguientes.
-        horaActual = tarea.horaInicio.add(Duration(minutes: tarea.duracionMinutos));
+        // Inamovible: no se toca su horaInicio. Las tareas siguientes van
+        // detrás de ella, pero el cursor nunca retrocede (si la fija cae
+        // antes del final de las anteriores, no se solapan con ellas).
+        horaActual = _masTarde(horaActual, tarea.horaFin);
       } else {
-        tarea.horaInicio = horaActual;
-        horaActual = horaActual.add(Duration(minutes: tarea.duracionMinutos));
+        tarea.horaInicio = _primerHuecoLibre(horaActual, tarea.duracionMinutos, fijas);
+        horaActual = tarea.horaFin;
       }
     }
+    _ordenarPorHora(tareas);
     return tareas;
+  }
+
+  static DateTime _masTarde(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
+
+  /// Primera hora, a partir de [desde], en la que cabe una tarea de
+  /// [minutos] sin pisar ninguna de las tareas de hora fija.
+  static DateTime _primerHuecoLibre(DateTime desde, int minutos, List<Tarea> fijas) {
+    var inicio = desde;
+    var hayChoque = true;
+    while (hayChoque) {
+      hayChoque = false;
+      final fin = inicio.add(Duration(minutes: minutos));
+      for (final f in fijas) {
+        if (f.horaInicio.isBefore(fin) && f.horaFin.isAfter(inicio)) {
+          // Se solaparía: la colocamos justo detrás de la tarea fija.
+          inicio = f.horaFin;
+          hayChoque = true;
+        }
+      }
+    }
+    return inicio;
+  }
+
+  /// Deja la lista en orden cronológico (y actualiza `orden`), para que lo
+  /// que se ve en pantalla coincida siempre con el horario real.
+  static void _ordenarPorHora(List<Tarea> tareas) {
+    final ordenOriginal = {for (final t in tareas) t: t.orden};
+    tareas.sort((a, b) {
+      final c = a.horaInicio.compareTo(b.horaInicio);
+      return c != 0 ? c : ordenOriginal[a]!.compareTo(ordenOriginal[b]!);
+    });
+    for (int i = 0; i < tareas.length; i++) {
+      tareas[i].orden = i;
+    }
   }
 
   /// Añade una tarea nueva y recalcula. Si la tarea es de hora fija, se
@@ -99,17 +136,19 @@ class Planificador {
       ahora.minute,
     );
 
+    final fijas = tareas.where((t) => t.horaFija).toList();
     for (final tarea in tareas) {
       if (tarea.horaFija) {
         // Inamovible pase lo que pase; las siguientes tareas continúan
-        // encadenadas a partir de su hora + duración.
-        ancla = tarea.horaInicio.add(Duration(minutes: tarea.duracionMinutos));
+        // detrás de ella (sin que el cursor retroceda).
+        ancla = _masTarde(ancla, tarea.horaFin);
         continue;
       }
       if (tarea.completada) continue; // conserva su hora ya prevista
-      tarea.horaInicio = ancla;
-      ancla = ancla.add(Duration(minutes: tarea.duracionMinutos));
+      tarea.horaInicio = _primerHuecoLibre(ancla, tarea.duracionMinutos, fijas);
+      ancla = tarea.horaFin;
     }
+    _ordenarPorHora(tareas);
     return tareas;
   }
 }

@@ -73,6 +73,10 @@ class _PantallaAnadirTareaState extends State<PantallaAnadirTarea> {
       _duracionController.text = guardada.duracionMinutos.toString();
       _duracionTemporizador = Duration(minutes: guardada.duracionMinutos);
       _listaSeleccionadaId = lista.id;
+      _prioridadAlta = guardada.prioridadAlta;
+      // Solo si la categoría sigue existiendo (puede haberse borrado).
+      _categoriaSeleccionadaId =
+          widget.categorias.any((c) => c.id == guardada.categoriaId) ? guardada.categoriaId : null;
     });
   }
 

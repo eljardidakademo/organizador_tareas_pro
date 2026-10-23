@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/lista_favorita.dart';
+import '../models/categoria.dart';
 import '../models/configuracion_app.dart';
 
 IconData _iconoDesdeNombre(String nombre) {
@@ -27,9 +28,15 @@ IconData _iconoDesdeNombre(String nombre) {
 
 class PantallaListasFavoritas extends StatefulWidget {
   final List<ListaFavorita> listas;
+  final List<Categoria> categorias;
   final ConfiguracionApp configuracion;
 
-  const PantallaListasFavoritas({super.key, required this.listas, required this.configuracion});
+  const PantallaListasFavoritas({
+    super.key,
+    required this.listas,
+    required this.configuracion,
+    this.categorias = const [],
+  });
 
   @override
   State<PantallaListasFavoritas> createState() =>
@@ -171,36 +178,74 @@ class _PantallaListasFavoritasState extends State<PantallaListasFavoritas> {
     final duracionController = TextEditingController(
       text: tareaExistente?.duracionMinutos.toString() ?? '',
     );
+    bool prioridadTemp = tareaExistente?.prioridadAlta ?? false;
+    String? categoriaTemp = tareaExistente?.categoriaId;
 
     final guardar = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(tareaExistente == null ? _t('nueva_tarea_guardada') : _t('editar_tarea')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nombreController,
-              decoration: InputDecoration(labelText: _t('nombre_tarea')),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(tareaExistente == null ? _t('nueva_tarea_guardada') : _t('editar_tarea')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nombreController,
+                  decoration: InputDecoration(labelText: _t('nombre_tarea')),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: duracionController,
+                  decoration: InputDecoration(labelText: _t('duracion_tipica_min')),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(_t('prioridad_alta')),
+                  value: prioridadTemp,
+                  onChanged: (v) => setDialogState(() => prioridadTemp = v),
+                ),
+                if (widget.categorias.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(_t('categoria')),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ChoiceChip(
+                        label: Text(_t('sin_categoria')),
+                        selected: categoriaTemp == null,
+                        onSelected: (_) => setDialogState(() => categoriaTemp = null),
+                      ),
+                      ...widget.categorias.map(
+                        (c) => ChoiceChip(
+                          label: Text(c.nombre),
+                          avatar: CircleAvatar(backgroundColor: Color(c.colorValue)),
+                          selected: categoriaTemp == c.id,
+                          onSelected: (_) => setDialogState(() => categoriaTemp = c.id),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: duracionController,
-              decoration: InputDecoration(labelText: _t('duracion_tipica_min')),
-              keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(_t('cancelar')),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(_t('guardar')),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(_t('cancelar')),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(_t('guardar')),
-          ),
-        ],
       ),
     );
 
@@ -216,9 +261,16 @@ class _PantallaListasFavoritasState extends State<PantallaListasFavoritas> {
       if (tareaExistente != null) {
         tareaExistente.nombre = nombreController.text.trim();
         tareaExistente.duracionMinutos = duracion;
+        tareaExistente.prioridadAlta = prioridadTemp;
+        tareaExistente.categoriaId = categoriaTemp;
       } else {
         lista.tareas.add(
-          TareaGuardada(nombre: nombreController.text.trim(), duracionMinutos: duracion),
+          TareaGuardada(
+            nombre: nombreController.text.trim(),
+            duracionMinutos: duracion,
+            prioridadAlta: prioridadTemp,
+            categoriaId: categoriaTemp,
+          ),
         );
       }
     });

@@ -43,7 +43,7 @@ class _PantallaRaizState extends State<PantallaRaiz> {
       dias = diasGuardados;
       dias.sort((a, b) => a.fecha.compareTo(b.fecha));
       // null = primera vez que se abre la app: se usan las listas de fábrica.
-      listasFavoritas = listasGuardadas ?? listasPredefinidas();
+      listasFavoritas = listasGuardadas ?? listasPredefinidas(widget.configuracion.idioma);
       categorias = categoriasGuardadas;
       rutinas = rutinasGuardadas;
       _datosCargados = true;

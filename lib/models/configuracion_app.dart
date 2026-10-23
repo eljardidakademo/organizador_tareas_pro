@@ -16,17 +16,6 @@ extension FormaTarjetaRadio on FormaTarjeta {
         return 24;
     }
   }
-
-  String get etiqueta {
-    switch (this) {
-      case FormaTarjeta.cuadrada:
-        return 'Cuadrada';
-      case FormaTarjeta.redondeada:
-        return 'Redondeada';
-      case FormaTarjeta.muyRedondeada:
-        return 'Muy redondeada';
-    }
-  }
 }
 
 /// Fuentes disponibles para elegir en Ajustes (todas de Google Fonts).
