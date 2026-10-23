@@ -12,8 +12,7 @@ class ServicioWidget {
 
   static const _maxTareas = 8;
 
-  static bool get _disponible =>
-      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  static bool get _disponible => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   static String _t(String clave) => Traducciones.t(idioma, clave);
 
@@ -26,8 +25,7 @@ class ServicioWidget {
       final hoy = dias.where((d) => d.esMismaFecha(ahora)).toList();
       final tareas = hoy.isEmpty
           ? []
-          : ([...hoy.first.tareas]
-            ..sort((a, b) => a.horaInicio.compareTo(b.horaInicio)));
+          : ([...hoy.first.tareas]..sort((a, b) => a.horaInicio.compareTo(b.horaInicio)));
       final pendientes = tareas.where((t) => !t.completada).toList();
       final hechas = tareas.length - pendientes.length;
 
@@ -48,14 +46,12 @@ class ServicioWidget {
         }
       }
 
-      final fecha =
-          '${ahora.year}-${_dosCifras(ahora.month)}-${_dosCifras(ahora.day)}';
+      final fecha = '${ahora.year}-${_dosCifras(ahora.month)}-${_dosCifras(ahora.day)}';
       await HomeWidget.saveWidgetData<String>('widget_fecha', fecha);
       await HomeWidget.saveWidgetData<String>('widget_titulo', titulo);
       await HomeWidget.saveWidgetData<String>('widget_contenido', contenido);
       await HomeWidget.saveWidgetData<String>('widget_titulo_vacio', _t('hoy'));
-      await HomeWidget.saveWidgetData<String>(
-          'widget_abrir_app', _t('widget_abrir_app'));
+      await HomeWidget.saveWidgetData<String>('widget_abrir_app', _t('widget_abrir_app'));
       await HomeWidget.updateWidget(androidName: 'WidgetTareasHoy');
     } catch (_) {
       // Si el widget falla, la app debe seguir funcionando con normalidad.

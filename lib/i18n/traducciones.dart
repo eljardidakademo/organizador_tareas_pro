@@ -735,6 +735,91 @@ class Traducciones {
       Idioma.castellano: 'Abre la app para ver las tareas de hoy',
       Idioma.ingles: "Open the app to see today's tasks",
     },
+    'sincronizacion': {
+      Idioma.valenciano: 'Sincronització',
+      Idioma.castellano: 'Sincronización',
+      Idioma.ingles: 'Sync',
+    },
+    'sync_configurar': {
+      Idioma.valenciano: 'Sincronitzar mòbil i web',
+      Idioma.castellano: 'Sincronizar móvil y web',
+      Idioma.ingles: 'Sync phone and web',
+    },
+    'sync_explicacion': {
+      Idioma.valenciano: "Enganxa l'adreça del teu Google Apps Script i la clau secreta (les dos estan en la guia).",
+      Idioma.castellano: 'Pega la dirección de tu Google Apps Script y la clave secreta (las dos están en la guía).',
+      Idioma.ingles: 'Paste the address of your Google Apps Script and the secret key (both are in the guide).',
+    },
+    'sync_url': {
+      Idioma.valenciano: "Adreça de l'script (acaba en /exec)",
+      Idioma.castellano: 'Dirección del script (acaba en /exec)',
+      Idioma.ingles: 'Script address (ends in /exec)',
+    },
+    'sync_clave': {
+      Idioma.valenciano: 'Clau secreta',
+      Idioma.castellano: 'Clave secreta',
+      Idioma.ingles: 'Secret key',
+    },
+    'sync_primera_vez': {
+      Idioma.valenciano: 'Quines dades vols conservar?',
+      Idioma.castellano: '¿Qué datos quieres conservar?',
+      Idioma.ingles: 'Which data do you want to keep?',
+    },
+    'sync_primera_vez_desc': {
+      Idioma.valenciano: "Si és el primer dispositiu que connectes (el mòbil on ja tens les teues tasques), tria «Pujar». Si ja havies connectat un altre dispositiu, tria «Descarregar» i es substituiran les dades d'este.",
+      Idioma.castellano: 'Si es el primer dispositivo que conectas (el móvil donde ya tienes tus tareas), elige «Subir». Si ya habías conectado otro dispositivo, elige «Descargar» y se sustituirán los datos de este.',
+      Idioma.ingles: "If this is the first device you connect (the phone that already has your tasks), choose 'Upload'. If you already connected another device, choose 'Download' and this device's data will be replaced.",
+    },
+    'sync_subir': {
+      Idioma.valenciano: "Pujar les d'este dispositiu",
+      Idioma.castellano: 'Subir los de este dispositivo',
+      Idioma.ingles: "Upload this device's",
+    },
+    'sync_descargar': {
+      Idioma.valenciano: 'Descarregar els del núvol',
+      Idioma.castellano: 'Descargar los de la nube',
+      Idioma.ingles: 'Download from the cloud',
+    },
+    'sync_ahora': {
+      Idioma.valenciano: 'Sincronitzar ara',
+      Idioma.castellano: 'Sincronizar ahora',
+      Idioma.ingles: 'Sync now',
+    },
+    'sync_en_curso': {
+      Idioma.valenciano: 'Sincronitzant…',
+      Idioma.castellano: 'Sincronizando…',
+      Idioma.ingles: 'Syncing…',
+    },
+    'sync_ok': {
+      Idioma.valenciano: 'Sincronització feta',
+      Idioma.castellano: 'Sincronización hecha',
+      Idioma.ingles: 'Sync done',
+    },
+    'sync_error': {
+      Idioma.valenciano: 'Error en sincronitzar',
+      Idioma.castellano: 'Error al sincronizar',
+      Idioma.ingles: 'Sync error',
+    },
+    'sync_desactivada': {
+      Idioma.valenciano: 'Desactivada',
+      Idioma.castellano: 'Desactivada',
+      Idioma.ingles: 'Off',
+    },
+    'sync_nunca': {
+      Idioma.valenciano: "Encara no s'ha sincronitzat",
+      Idioma.castellano: 'Aún no se ha sincronizado',
+      Idioma.ingles: 'Not synced yet',
+    },
+    'sync_ultima': {
+      Idioma.valenciano: 'Última',
+      Idioma.castellano: 'Última',
+      Idioma.ingles: 'Last',
+    },
+    'sync_datos_actualizados': {
+      Idioma.valenciano: "Dades actualitzades des d'un altre dispositiu",
+      Idioma.castellano: 'Datos actualizados desde otro dispositivo',
+      Idioma.ingles: 'Data updated from another device',
+    },
     'esta_semana': {
       Idioma.valenciano: 'Esta setmana',
       Idioma.castellano: 'Esta semana',

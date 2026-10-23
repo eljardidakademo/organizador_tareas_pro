@@ -6,6 +6,7 @@ import '../models/rutina.dart';
 import '../models/configuracion_app.dart';
 import '../services/persistencia_service.dart';
 import '../services/widget_service.dart';
+import '../services/sync_service.dart';
 import '../services/rutinas_service.dart';
 import 'pantalla_mis_dias.dart';
 import 'pantalla_dias_pager.dart';
@@ -19,7 +20,7 @@ class PantallaRaiz extends StatefulWidget {
   State<PantallaRaiz> createState() => _PantallaRaizState();
 }
 
-class _PantallaRaizState extends State<PantallaRaiz> {
+class _PantallaRaizState extends State<PantallaRaiz> with WidgetsBindingObserver {
   List<Dia> dias = [];
   List<ListaFavorita> listasFavoritas = [];
   List<Categoria> categorias = [];
@@ -31,7 +32,66 @@ class _PantallaRaizState extends State<PantallaRaiz> {
   @override
   void initState() {
     super.initState();
-    _cargarDatosGuardados();
+    WidgetsBinding.instance.addObserver(this);
+    ServicioSync.datosDescargados.addListener(_alDescargarDeLaNube);
+    _cargarDatosGuardados().then((_) => _sincronizar());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    ServicioSync.datosDescargados.removeListener(_alDescargarDeLaNube);
+    super.dispose();
+  }
+
+  /// Al volver a la app (o a la pestaña, en la web) se mira si hay cambios
+  /// hechos en otro dispositivo.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _sincronizar();
+  }
+
+  Future<void> _sincronizar() async {
+    await ServicioSync.cargarAjustes();
+    await ServicioSync.sincronizar();
+  }
+
+  /// Han llegado datos nuevos de la nube: se vuelve a la pantalla principal
+  /// (para no seguir editando datos antiguos) y se recarga todo.
+  Future<void> _alDescargarDeLaNube() async {
+    if (!mounted) return;
+    Navigator.of(context).popUntil((ruta) => ruta.isFirst);
+    final diasGuardados = await ServicioPersistencia.cargarDias();
+    final listasGuardadas = await ServicioPersistencia.cargarListasFavoritas();
+    final categoriasGuardadas = await ServicioPersistencia.cargarCategorias();
+    final rutinasGuardadas = await ServicioPersistencia.cargarRutinas();
+    await ServicioSync.sinMarcarCambios(() async {
+      await ServicioPersistencia.cargarConfiguracionEn(configuracion);
+      configuracion.notificar();
+    });
+    if (!mounted) return;
+    // Se cambian los contenidos de las listas (no las listas en sí), porque
+    // las pantallas las comparten.
+    setState(() {
+      dias
+        ..clear()
+        ..addAll(diasGuardados)
+        ..sort((a, b) => a.fecha.compareTo(b.fecha));
+      if (listasGuardadas != null) {
+        listasFavoritas
+          ..clear()
+          ..addAll(listasGuardadas);
+      }
+      categorias
+        ..clear()
+        ..addAll(categoriasGuardadas);
+      rutinas
+        ..clear()
+        ..addAll(rutinasGuardadas);
+    });
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(content: Text(configuracion.t('sync_datos_actualizados'))),
+    );
   }
 
   Future<void> _cargarDatosGuardados() async {

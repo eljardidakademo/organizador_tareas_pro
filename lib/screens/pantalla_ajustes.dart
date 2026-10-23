@@ -7,6 +7,7 @@ import '../models/categoria.dart';
 import '../models/rutina.dart';
 import '../i18n/traducciones.dart';
 import '../services/backup_service.dart';
+import '../services/sync_service.dart';
 
 class PantallaAjustes extends StatefulWidget {
   final ConfiguracionApp configuracion;
@@ -116,6 +117,117 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
     );
   }
 
+  // --- Sincronización con Google Apps Script ---
+
+  @override
+  void initState() {
+    super.initState();
+    ServicioSync.cargarAjustes().then((_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  String _estadoSync() {
+    if (!ServicioSync.activa) return _t('sync_desactivada');
+    if (ServicioSync.ultimoError != null) return '${_t('sync_error')}: ${ServicioSync.ultimoError}';
+    final ultima = ServicioSync.ultimaSync;
+    if (ultima == null) return _t('sync_nunca');
+    final hora = _formatea(TimeOfDay.fromDateTime(ultima));
+    return '${_t('sync_ultima')}: ${ultima.day}/${ultima.month} $hora';
+  }
+
+  void _avisar(String texto) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(texto)));
+  }
+
+  void _avisarResultado(ResultadoSync r) {
+    setState(() {});
+    switch (r) {
+      case ResultadoSync.error:
+        _avisar('${_t('sync_error')}: ${ServicioSync.ultimoError}');
+        break;
+      case ResultadoSync.desactivada:
+        _avisar(_t('sync_desactivada'));
+        break;
+      default:
+        _avisar(_t('sync_ok'));
+    }
+  }
+
+  Future<void> _configurarSync() async {
+    final urlController = TextEditingController(text: ServicioSync.url);
+    final claveController = TextEditingController(text: ServicioSync.clave);
+    final guardar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_t('sync_configurar')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_t('sync_explicacion')),
+              const SizedBox(height: 12),
+              TextField(
+                controller: urlController,
+                decoration: InputDecoration(labelText: _t('sync_url')),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: claveController,
+                decoration: InputDecoration(labelText: _t('sync_clave')),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(_t('cancelar')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(_t('guardar')),
+          ),
+        ],
+      ),
+    );
+    if (guardar != true) return;
+    await ServicioSync.guardarAjustes(urlController.text, claveController.text);
+    setState(() {});
+    if (!ServicioSync.activa || !mounted) return;
+
+    // Primera conexión: ¿qué datos mandan, los de este dispositivo o los de la nube?
+    final subir = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(_t('sync_primera_vez')),
+        content: Text(_t('sync_primera_vez_desc')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(_t('sync_descargar')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(_t('sync_subir')),
+          ),
+        ],
+      ),
+    );
+    if (subir == null) return;
+    _avisar(_t('sync_en_curso'));
+    final r = subir ? await ServicioSync.subir(forzar: true) : await ServicioSync.descargar();
+    if (mounted) _avisarResultado(r);
+  }
+
+  Future<void> _sincronizarAhora() async {
+    _avisar(_t('sync_en_curso'));
+    final r = await ServicioSync.sincronizar();
+    if (mounted) _avisarResultado(r);
+  }
+
   void _actualizarConfiguracion(void Function() cambio) {
     setState(cambio);
     widget.configuracion.notificar(); // repinta el tema y guarda el cambio
@@ -138,7 +250,8 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
           ),
           SizedBox(
             width: 32,
-            child: Text('$valor', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text('$valor',
+                textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
           IconButton(
             icon: const Icon(Icons.add_circle_outline),
@@ -255,9 +368,18 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
                 const SizedBox(height: 8),
                 SegmentedButton<ModoTema>(
                   segments: [
-                    ButtonSegment(value: ModoTema.claro, label: Text(_t('claro')), icon: const Icon(Icons.light_mode)),
-                    ButtonSegment(value: ModoTema.oscuro, label: Text(_t('oscuro')), icon: const Icon(Icons.dark_mode)),
-                    ButtonSegment(value: ModoTema.sistema, label: Text(_t('sistema')), icon: const Icon(Icons.brightness_auto)),
+                    ButtonSegment(
+                        value: ModoTema.claro,
+                        label: Text(_t('claro')),
+                        icon: const Icon(Icons.light_mode)),
+                    ButtonSegment(
+                        value: ModoTema.oscuro,
+                        label: Text(_t('oscuro')),
+                        icon: const Icon(Icons.dark_mode)),
+                    ButtonSegment(
+                        value: ModoTema.sistema,
+                        label: Text(_t('sistema')),
+                        icon: const Icon(Icons.brightness_auto)),
                   ],
                   selected: {config.modoTema},
                   onSelectionChanged: (nuevo) =>
@@ -375,6 +497,23 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
           ),
           const SizedBox(height: 24),
 
+          const Divider(height: 32),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Text(_t('sincronizacion'), style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.cloud_outlined),
+            title: Text(_t('sync_configurar')),
+            subtitle: Text(_estadoSync()),
+            onTap: _configurarSync,
+          ),
+          if (ServicioSync.activa)
+            ListTile(
+              leading: const Icon(Icons.sync),
+              title: Text(_t('sync_ahora')),
+              onTap: _sincronizarAhora,
+            ),
           const Divider(height: 32),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),

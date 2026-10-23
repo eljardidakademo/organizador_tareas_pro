@@ -13,6 +13,7 @@ dependencies:
   google_fonts: ^6.2.1
   shared_preferences: ^2.2.2
   home_widget: ^0.10.0
+  http: ^1.6.0
 
   # Se activarán en los próximos pasos:
   # firebase_core: ^latest

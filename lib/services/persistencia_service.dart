@@ -6,6 +6,7 @@ import '../models/categoria.dart';
 import '../models/rutina.dart';
 import '../models/configuracion_app.dart';
 import 'widget_service.dart';
+import 'sync_service.dart';
 
 /// Guarda y recupera los datos de la app en el almacenamiento local del
 /// dispositivo (SharedPreferences), para que no se pierdan al cerrar la app.
@@ -18,6 +19,7 @@ class ServicioPersistencia {
   static const _claveCategorias = 'categorias_json';
 
   static Future<void> guardarCategorias(List<Categoria> categorias) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     final lista = categorias.map((c) => c.toMap()).toList();
     await prefs.setString(_claveCategorias, jsonEncode(lista));
@@ -34,6 +36,7 @@ class ServicioPersistencia {
   static const _claveRutinas = 'rutinas_json';
 
   static Future<void> guardarRutinas(List<Rutina> rutinas) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     final lista = rutinas.map((r) => r.toMap()).toList();
     await prefs.setString(_claveRutinas, jsonEncode(lista));
@@ -48,6 +51,7 @@ class ServicioPersistencia {
   }
 
   static Future<void> guardarDias(List<Dia> dias) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     final lista = dias.map((d) => d.toMap()).toList();
     await prefs.setString(_claveDias, jsonEncode(lista));
@@ -64,6 +68,7 @@ class ServicioPersistencia {
   }
 
   static Future<void> guardarListasFavoritas(List<ListaFavorita> listas) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     final lista = listas.map((l) => l.toMap()).toList();
     await prefs.setString(_claveListas, jsonEncode(lista));
@@ -80,8 +85,22 @@ class ServicioPersistencia {
   }
 
   static Future<void> guardarConfiguracion(ConfiguracionApp c) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_claveConfiguracion, jsonEncode(c.toMap()));
+  }
+
+  /// La configuración guardada tal cual (null si nunca se ha guardado).
+  static Future<Map<String, dynamic>?> cargarConfiguracionMapa() async {
+    final prefs = await SharedPreferences.getInstance();
+    final json = prefs.getString(_claveConfiguracion);
+    return json == null ? null : jsonDecode(json);
+  }
+
+  static Future<void> guardarConfiguracionMapa(Map<String, dynamic> mapa) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_claveConfiguracion, jsonEncode(mapa));
   }
 
   /// Aplica los valores guardados sobre una instancia ya creada de
@@ -98,6 +117,7 @@ class ServicioPersistencia {
   static const _clavePomodoros = 'pomodoros_completados_json';
 
   static Future<void> registrarPomodoroCompletado() async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     final json = prefs.getString(_clavePomodoros);
     final List<dynamic> lista = json == null ? [] : jsonDecode(json);
@@ -107,6 +127,7 @@ class ServicioPersistencia {
 
   /// Sustituye el historial completo (se usa al restaurar una copia).
   static Future<void> guardarPomodorosCompletados(List<DateTime> pomodoros) async {
+    ServicioSync.marcarCambioLocal(); // avisa a la sincronización (si está activada)
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         _clavePomodoros, jsonEncode(pomodoros.map((p) => p.toIso8601String()).toList()));
