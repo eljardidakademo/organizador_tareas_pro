@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/configuracion_app.dart';
 import 'screens/pantalla_raiz.dart';
 import 'services/persistencia_service.dart';
+import 'services/widget_service.dart';
 
 void main() {
   runApp(const OrganizadorTareasApp());
@@ -78,6 +79,7 @@ class _OrganizadorTareasAppState extends State<OrganizadorTareasApp> {
     // Repinta toda la app (tema incluido) y guarda cada vez que cambie algo en Ajustes.
     configuracion.addListener(() {
       setState(() {});
+      ServicioWidget.idioma = configuracion.idioma;
       ServicioPersistencia.guardarConfiguracion(configuracion);
     });
     _cargarConfiguracionGuardada();
@@ -85,6 +87,7 @@ class _OrganizadorTareasAppState extends State<OrganizadorTareasApp> {
 
   Future<void> _cargarConfiguracionGuardada() async {
     await ServicioPersistencia.cargarConfiguracionEn(configuracion);
+    ServicioWidget.idioma = configuracion.idioma;
     if (mounted) setState(() => _configuracionCargada = true);
   }
 

@@ -720,6 +720,21 @@ class Traducciones {
       Idioma.castellano: 'Hoy',
       Idioma.ingles: 'Today',
     },
+    'widget_sin_tareas': {
+      Idioma.valenciano: 'No hi ha tasques per a hui',
+      Idioma.castellano: 'No hay tareas para hoy',
+      Idioma.ingles: 'No tasks for today',
+    },
+    'widget_todo_hecho': {
+      Idioma.valenciano: 'Tot fet! 🎉',
+      Idioma.castellano: '¡Todo hecho! 🎉',
+      Idioma.ingles: 'All done! 🎉',
+    },
+    'widget_abrir_app': {
+      Idioma.valenciano: "Obri l'app per a vore les tasques de hui",
+      Idioma.castellano: 'Abre la app para ver las tareas de hoy',
+      Idioma.ingles: "Open the app to see today's tasks",
+    },
     'esta_semana': {
       Idioma.valenciano: 'Esta setmana',
       Idioma.castellano: 'Esta semana',

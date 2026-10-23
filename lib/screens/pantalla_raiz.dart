@@ -5,6 +5,7 @@ import '../models/categoria.dart';
 import '../models/rutina.dart';
 import '../models/configuracion_app.dart';
 import '../services/persistencia_service.dart';
+import '../services/widget_service.dart';
 import '../services/rutinas_service.dart';
 import 'pantalla_mis_dias.dart';
 import 'pantalla_dias_pager.dart';
@@ -48,6 +49,9 @@ class _PantallaRaizState extends State<PantallaRaiz> {
       rutinas = rutinasGuardadas;
       _datosCargados = true;
     });
+
+    // Refresca el widget de inicio (por si ha cambiado el día desde la última vez).
+    ServicioWidget.actualizar(dias);
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _lanzarAsistente());
   }

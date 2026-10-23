@@ -5,6 +5,7 @@ import '../models/lista_favorita.dart';
 import '../models/categoria.dart';
 import '../models/rutina.dart';
 import '../models/configuracion_app.dart';
+import 'widget_service.dart';
 
 /// Guarda y recupera los datos de la app en el almacenamiento local del
 /// dispositivo (SharedPreferences), para que no se pierdan al cerrar la app.
@@ -50,6 +51,8 @@ class ServicioPersistencia {
     final prefs = await SharedPreferences.getInstance();
     final lista = dias.map((d) => d.toMap()).toList();
     await prefs.setString(_claveDias, jsonEncode(lista));
+    // Cada vez que cambian los días, se refresca el widget de inicio.
+    await ServicioWidget.actualizar(dias);
   }
 
   static Future<List<Dia>> cargarDias() async {
