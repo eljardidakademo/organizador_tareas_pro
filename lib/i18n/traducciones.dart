@@ -825,6 +825,36 @@ class Traducciones {
       Idioma.castellano: 'Datos actualizados desde otro dispositivo',
       Idioma.ingles: 'Data updated from another device',
     },
+    'temporizador': {
+      Idioma.valenciano: 'Temporitzador',
+      Idioma.castellano: 'Temporizador',
+      Idioma.ingles: 'Timer',
+    },
+    'cronometro': {
+      Idioma.valenciano: 'Cronòmetre',
+      Idioma.castellano: 'Cronómetro',
+      Idioma.ingles: 'Stopwatch',
+    },
+    'vuelta': {
+      Idioma.valenciano: 'Volta',
+      Idioma.castellano: 'Vuelta',
+      Idioma.ingles: 'Lap',
+    },
+    'reiniciar': {
+      Idioma.valenciano: 'Reiniciar',
+      Idioma.castellano: 'Reiniciar',
+      Idioma.ingles: 'Reset',
+    },
+    'seguimiento_tiempo': {
+      Idioma.valenciano: 'Seguiment del temps de les tasques',
+      Idioma.castellano: 'Seguimiento del tiempo de las tareas',
+      Idioma.ingles: 'Task time tracking',
+    },
+    'seguimiento_tiempo_desc': {
+      Idioma.valenciano: "Registrar el temps real, comparar-lo amb l'estimat i vore estadístiques",
+      Idioma.castellano: 'Registrar el tiempo real, compararlo con el estimado y ver estadísticas',
+      Idioma.ingles: 'Log real time, compare it with the estimate and see statistics',
+    },
     'esta_semana': {
       Idioma.valenciano: 'Esta setmana',
       Idioma.castellano: 'Esta semana',

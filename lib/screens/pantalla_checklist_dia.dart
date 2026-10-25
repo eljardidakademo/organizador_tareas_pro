@@ -432,7 +432,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
               children: [
                 const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 18),
                 const SizedBox(width: 6),
-                Expanded(child: Text(t('aviso_80_por_ciento'), style: const TextStyle(fontSize: 12))),
+                Expanded(
+                    child: Text(t('aviso_80_por_ciento'), style: const TextStyle(fontSize: 12))),
               ],
             ),
           ],
@@ -464,7 +465,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
           ),
           if (tarea.sesiones.isNotEmpty) ...[
             const SizedBox(height: 8),
-            Text(t('historial_sesiones'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(t('historial_sesiones'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
             const SizedBox(height: 4),
             ...tarea.sesiones.reversed.take(5).map(
                   (s) => Padding(
@@ -473,7 +475,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                       '${s.inicio.day.toString().padLeft(2, '0')}/${s.inicio.month.toString().padLeft(2, '0')} '
                       '${s.inicio.hour.toString().padLeft(2, '0')}:${s.inicio.minute.toString().padLeft(2, '0')} · '
                       '${s.minutos} min${s.origen == 'pomodoro' ? ' 🍅' : ''}',
-                      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: TextStyle(
+                          fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -486,8 +489,7 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
   Future<void> _editarTarea(Tarea tarea) async {
     bool modoTemporizador = false;
     Duration duracionTemp = Duration(minutes: tarea.duracionMinutos);
-    final duracionController =
-        TextEditingController(text: tarea.duracionMinutos.toString());
+    final duracionController = TextEditingController(text: tarea.duracionMinutos.toString());
     bool prioridadTemp = tarea.prioridadAlta;
     String? categoriaTemp = tarea.categoriaId;
     bool horaFijaTemp = tarea.horaFija;
@@ -511,12 +513,19 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
             children: [
               Text(tarea.nombre, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 16),
-              Text(widget.configuracion.t('duracion'), style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(widget.configuracion.t('duracion'),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               SegmentedButton<bool>(
                 segments: [
-                  ButtonSegment(value: false, label: Text(widget.configuracion.t('escribir')), icon: const Icon(Icons.keyboard)),
-                  ButtonSegment(value: true, label: Text(widget.configuracion.t('girar_temporizador')), icon: const Icon(Icons.timer)),
+                  ButtonSegment(
+                      value: false,
+                      label: Text(widget.configuracion.t('escribir')),
+                      icon: const Icon(Icons.keyboard)),
+                  ButtonSegment(
+                      value: true,
+                      label: Text(widget.configuracion.t('girar_temporizador')),
+                      icon: const Icon(Icons.timer)),
                 ],
                 selected: {modoTemporizador},
                 onSelectionChanged: (nuevo) => setModalState(() {
@@ -533,7 +542,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
               if (!modoTemporizador)
                 TextField(
                   controller: duracionController,
-                  decoration: InputDecoration(labelText: widget.configuracion.t('minutos'), suffixText: 'min'),
+                  decoration: InputDecoration(
+                      labelText: widget.configuracion.t('minutos'), suffixText: 'min'),
                   keyboardType: TextInputType.number,
                 )
               else
@@ -584,7 +594,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                 ),
               if (widget.categorias.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Text(widget.configuracion.t('categoria'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(widget.configuracion.t('categoria'),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -606,21 +617,24 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                   ],
                 ),
               ],
-              const Divider(height: 32),
-              _bloqueComparativaTiempos(tarea, setModalState),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    iniciarPomodoroDespues = true;
-                    Navigator.of(context).pop(true);
-                  },
-                  icon: const Icon(Icons.timer_outlined),
-                  label: Text(widget.configuracion.t('iniciar_pomodoro_con_tarea')),
+              // Seguimiento del tiempo: solo si está activado en Ajustes.
+              if (widget.configuracion.seguimientoTiempo) ...[
+                const Divider(height: 32),
+                _bloqueComparativaTiempos(tarea, setModalState),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      iniciarPomodoroDespues = true;
+                      Navigator.of(context).pop(true);
+                    },
+                    icon: const Icon(Icons.timer_outlined),
+                    label: Text(widget.configuracion.t('iniciar_pomodoro_con_tarea')),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
+              ],
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -745,7 +759,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                   // Con el filtro activo no se permite arrastrar (los índices
                   // visibles no coinciden con los reales de dia.tareas).
                   return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
+                    padding: const EdgeInsets.fromLTRB(
+                        12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
                     itemCount: tareasVisibles.length,
                     itemBuilder: (context, index) =>
                         _construirFilaTarea(tareasVisibles[index], index, permitirArrastrar: false),
@@ -753,7 +768,8 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                 }
 
                 return ReorderableListView.builder(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
+                  padding: const EdgeInsets.fromLTRB(
+                      12, 12, 12, 96), // hueco final para que el botón + no tape la última tarea
                   itemCount: tareasVisibles.length,
                   onReorder: _reordenar,
                   itemBuilder: (context, index) =>
@@ -837,7 +853,7 @@ class _PantallaChecklistDiaState extends State<PantallaChecklistDia> {
                     '${formateaHora(tarea.horaInicio)} - ${formateaHora(tarea.horaFin)} · ${tarea.duracionMinutos} min',
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
-                  if (tarea.sesiones.isNotEmpty) ...[
+                  if (widget.configuracion.seguimientoTiempo && tarea.sesiones.isNotEmpty) ...[
                     const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
@@ -908,7 +924,8 @@ class _AvisoTiempoLibre extends StatelessWidget {
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           child: Row(
             children: [
-              Icon(Icons.add_alarm, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+              Icon(Icons.add_alarm,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
               const SizedBox(width: 8),
               Text(
                 configuracion.t('activar_aviso_huecos'),

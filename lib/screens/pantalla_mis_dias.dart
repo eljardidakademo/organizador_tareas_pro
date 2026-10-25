@@ -12,7 +12,7 @@ import '../services/rutinas_service.dart';
 import 'pantalla_dias_pager.dart';
 import 'pantalla_ajustes.dart';
 import 'pantalla_categorias.dart';
-import 'pantalla_pomodoro.dart';
+import 'pantalla_temporizador.dart';
 import 'pantalla_estadisticas.dart';
 import 'pantalla_rutinas.dart';
 import 'pantalla_buscar_tareas.dart';
@@ -231,17 +231,19 @@ class _PantallaMisDiasState extends State<PantallaMisDias> {
             icon: const Icon(Icons.search),
             tooltip: widget.configuracion.t('buscar_tareas'),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PantallaBuscarTareas(
-                    dias: widget.dias,
-                    listasFavoritas: widget.listasFavoritas,
-                    categorias: widget.categorias,
-                    rutinas: widget.rutinas,
-                    configuracion: widget.configuracion,
-                  ),
-                ),
-              ).then((_) => setState(() {}));
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (_) => PantallaBuscarTareas(
+                        dias: widget.dias,
+                        listasFavoritas: widget.listasFavoritas,
+                        categorias: widget.categorias,
+                        rutinas: widget.rutinas,
+                        configuracion: widget.configuracion,
+                      ),
+                    ),
+                  )
+                  .then((_) => setState(() {}));
             },
           ),
           IconButton(
@@ -269,26 +271,28 @@ class _PantallaMisDiasState extends State<PantallaMisDias> {
             icon: const Icon(Icons.settings),
             tooltip: widget.configuracion.t('ajustes'),
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PantallaAjustes(
-                    configuracion: widget.configuracion,
-                    dias: widget.dias,
-                    listasFavoritas: widget.listasFavoritas,
-                    categorias: widget.categorias,
-                    rutinas: widget.rutinas,
-                  ),
-                ),
-              ).then((_) => setState(() {}));
+              Navigator.of(context)
+                  .push(
+                    MaterialPageRoute(
+                      builder: (_) => PantallaAjustes(
+                        configuracion: widget.configuracion,
+                        dias: widget.dias,
+                        listasFavoritas: widget.listasFavoritas,
+                        categorias: widget.categorias,
+                        rutinas: widget.rutinas,
+                      ),
+                    ),
+                  )
+                  .then((_) => setState(() {}));
             },
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (valor) {
-              if (valor == 'pomodoro') {
+              if (valor == 'temporizador') {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) => PantallaPomodoro(configuracion: widget.configuracion),
+                    builder: (_) => PantallaTemporizador(configuracion: widget.configuracion),
                   ),
                 );
               } else if (valor == 'estadisticas') {
@@ -302,38 +306,42 @@ class _PantallaMisDiasState extends State<PantallaMisDias> {
                   ),
                 );
               } else if (valor == 'rutinas') {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => PantallaRutinas(
-                      rutinas: widget.rutinas,
-                      categorias: widget.categorias,
-                      configuracion: widget.configuracion,
-                    ),
-                  ),
-                ).then((_) => ServicioPersistencia.guardarRutinas(widget.rutinas));
+                Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(
+                        builder: (_) => PantallaRutinas(
+                          rutinas: widget.rutinas,
+                          categorias: widget.categorias,
+                          configuracion: widget.configuracion,
+                        ),
+                      ),
+                    )
+                    .then((_) => ServicioPersistencia.guardarRutinas(widget.rutinas));
               }
             },
             itemBuilder: (context) => [
               PopupMenuItem(
-                value: 'pomodoro',
+                value: 'temporizador',
                 child: Row(
                   children: [
                     const Icon(Icons.timer_outlined, size: 20),
                     const SizedBox(width: 10),
-                    Text(widget.configuracion.t('pomodoro')),
+                    Text(widget.configuracion.t('temporizador')),
                   ],
                 ),
               ),
-              PopupMenuItem(
-                value: 'estadisticas',
-                child: Row(
-                  children: [
-                    const Icon(Icons.bar_chart, size: 20),
-                    const SizedBox(width: 10),
-                    Text(widget.configuracion.t('estadisticas')),
-                  ],
+              // Las estadísticas solo tienen sentido con el seguimiento del tiempo activado.
+              if (widget.configuracion.seguimientoTiempo)
+                PopupMenuItem(
+                  value: 'estadisticas',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.bar_chart, size: 20),
+                      const SizedBox(width: 10),
+                      Text(widget.configuracion.t('estadisticas')),
+                    ],
+                  ),
                 ),
-              ),
               PopupMenuItem(
                 value: 'rutinas',
                 child: Row(
@@ -405,7 +413,8 @@ class _PantallaMisDiasState extends State<PantallaMisDias> {
                             child: LinearProgressIndicator(
                               value: dia.progreso,
                               minHeight: 6,
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.surfaceContainerHighest,
                             ),
                           ),
                         ],

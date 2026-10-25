@@ -306,6 +306,12 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
             child: Text(_t('pomodoro'), style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
+          SwitchListTile(
+            title: Text(_t('seguimiento_tiempo')),
+            subtitle: Text(_t('seguimiento_tiempo_desc')),
+            value: config.seguimientoTiempo,
+            onChanged: (v) => _actualizarConfiguracion(() => config.seguimientoTiempo = v),
+          ),
           _filaNumero(
             titulo: _t('duracion_trabajo'),
             valor: config.pomodoroTrabajoMin,

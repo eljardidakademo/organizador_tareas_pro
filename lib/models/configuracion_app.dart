@@ -51,6 +51,11 @@ class ConfiguracionApp extends ChangeNotifier {
   FormaTarjeta formaTarjeta;
   Idioma idioma;
 
+  /// Si es false (por defecto) se ocultan el registro de tiempo real de las
+  /// tareas, la comparativa real/estimado y las estadísticas. Los datos que
+  /// ya hubiera no se borran: vuelven a verse al activarlo.
+  bool seguimientoTiempo;
+
   // --- Pomodoro ---
   int pomodoroTrabajoMin;
   int pomodoroDescansoCortoMin;
@@ -68,6 +73,7 @@ class ConfiguracionApp extends ChangeNotifier {
     this.escalaTexto = 1.0,
     this.formaTarjeta = FormaTarjeta.redondeada,
     this.idioma = Idioma.castellano,
+    this.seguimientoTiempo = false,
     this.pomodoroTrabajoMin = 25,
     this.pomodoroDescansoCortoMin = 5,
     this.pomodoroDescansoLargoMin = 15,
@@ -93,6 +99,7 @@ class ConfiguracionApp extends ChangeNotifier {
         'escalaTexto': escalaTexto,
         'formaTarjeta': formaTarjeta.index,
         'idioma': idioma.index,
+        'seguimientoTiempo': seguimientoTiempo,
         'pomodoroTrabajoMin': pomodoroTrabajoMin,
         'pomodoroDescansoCortoMin': pomodoroDescansoCortoMin,
         'pomodoroDescansoLargoMin': pomodoroDescansoLargoMin,
@@ -114,6 +121,7 @@ class ConfiguracionApp extends ChangeNotifier {
     escalaTexto = (m['escalaTexto'] ?? 1.0).toDouble();
     formaTarjeta = FormaTarjeta.values[m['formaTarjeta'] ?? FormaTarjeta.redondeada.index];
     idioma = Idioma.values[m['idioma'] ?? Idioma.castellano.index];
+    seguimientoTiempo = m['seguimientoTiempo'] ?? false;
     pomodoroTrabajoMin = m['pomodoroTrabajoMin'] ?? 25;
     pomodoroDescansoCortoMin = m['pomodoroDescansoCortoMin'] ?? 5;
     pomodoroDescansoLargoMin = m['pomodoroDescansoLargoMin'] ?? 15;

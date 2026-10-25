@@ -7,7 +7,8 @@ import '../services/persistencia_service.dart';
 
 enum _FasePomodoro { trabajo, descansoCorto, descansoLargo }
 
-class PantallaPomodoro extends StatefulWidget {
+/// Pantalla completa del Pomodoro (se usa al lanzarlo desde una tarea).
+class PantallaPomodoro extends StatelessWidget {
   /// Si se abre desde una tarea concreta, cada sesión de trabajo completada
   /// se registra automáticamente como tiempo real de esa tarea.
   final Tarea? tarea;
@@ -17,10 +18,42 @@ class PantallaPomodoro extends StatefulWidget {
   const PantallaPomodoro({super.key, this.tarea, required this.configuracion, this.onCambio});
 
   @override
-  State<PantallaPomodoro> createState() => _PantallaPomodoroState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(tarea?.nombre ?? configuracion.t('sin_tarea_asociada'))),
+      body: VistaPomodoro(
+        tarea: tarea,
+        configuracion: configuracion,
+        onCambio: onCambio,
+        alTerminar: () => Navigator.of(context).pop(),
+      ),
+    );
+  }
 }
 
-class _PantallaPomodoroState extends State<PantallaPomodoro> {
+/// El temporizador Pomodoro en sí, para poder usarlo dentro de otras
+/// pantallas (por ejemplo, en la pantalla Temporizador).
+class VistaPomodoro extends StatefulWidget {
+  final Tarea? tarea;
+  final ConfiguracionApp configuracion;
+  final VoidCallback? onCambio;
+
+  /// Qué hacer al pulsar "Terminar". Si es null, se reinicia el temporizador.
+  final VoidCallback? alTerminar;
+
+  const VistaPomodoro({
+    super.key,
+    this.tarea,
+    required this.configuracion,
+    this.onCambio,
+    this.alTerminar,
+  });
+
+  @override
+  State<VistaPomodoro> createState() => _VistaPomodoroState();
+}
+
+class _VistaPomodoroState extends State<VistaPomodoro> {
   _FasePomodoro _fase = _FasePomodoro.trabajo;
   int _ciclosCompletados = 0;
   late int _segundosRestantes;
@@ -52,8 +85,8 @@ class _PantallaPomodoroState extends State<PantallaPomodoro> {
   Future<void> _cargarPomodorosHoy() async {
     final todos = await ServicioPersistencia.cargarPomodorosCompletados();
     final hoy = DateTime.now();
-    final delDia = todos.where((f) =>
-        f.year == hoy.year && f.month == hoy.month && f.day == hoy.day);
+    final delDia =
+        todos.where((f) => f.year == hoy.year && f.month == hoy.month && f.day == hoy.day);
     if (mounted) setState(() => _pomodorosHoy = delDia.length);
   }
 
@@ -81,7 +114,16 @@ class _PantallaPomodoroState extends State<PantallaPomodoro> {
 
   void _terminar() {
     _timer?.cancel();
-    Navigator.of(context).pop();
+    if (widget.alTerminar != null) {
+      widget.alTerminar!();
+      return;
+    }
+    setState(() {
+      _fase = _FasePomodoro.trabajo;
+      _ciclosCompletados = 0;
+      _segundosRestantes = _duracionSegundos(_fase);
+      _corriendo = false;
+    });
   }
 
   Future<void> _completarFase() async {
@@ -164,99 +206,96 @@ class _PantallaPomodoroState extends State<PantallaPomodoro> {
     final progreso = duracionTotal == 0 ? 0.0 : 1 - (_segundosRestantes / duracionTotal);
     final color = _colorFase();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.tarea?.nombre ?? _c.t('sin_tarea_asociada')),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Text(
-                '${_c.t('ciclo')} ${_ciclosCompletados + 1}   ·   ${_c.t('pomodoros_hoy')}: $_pomodorosHoy/${_c.pomodoroObjetivoDiario}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
-              Expanded(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 240,
-                        height: 240,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 240,
-                              height: 240,
-                              child: CircularProgressIndicator(
-                                value: progreso,
-                                strokeWidth: 10,
-                                backgroundColor: color.withOpacity(0.15),
-                                color: color,
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Text(
+              '${_c.t('ciclo')} ${_ciclosCompletados + 1}   ·   ${_c.t('pomodoros_hoy')}: $_pomodorosHoy/${_c.pomodoroObjetivoDiario}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 240,
+                      height: 240,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 240,
+                            height: 240,
+                            child: CircularProgressIndicator(
+                              value: progreso,
+                              strokeWidth: 10,
+                              backgroundColor: color.withValues(alpha: 0.15),
+                              color: color,
+                            ),
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _formateaTiempo(_segundosRestantes),
+                                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
                               ),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _formateaTiempo(_segundosRestantes),
-                                  style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _etiquetaFase(),
-                                  style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 16),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _etiquetaFase(),
+                                style: TextStyle(
+                                    color: color, fontWeight: FontWeight.w600, fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              SwitchListTile(
-                title: Text(_c.t('modo_continuo')),
-                value: _modoContinuo,
-                onChanged: (v) => setState(() => _modoContinuo = v),
-              ),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  if (!_corriendo)
-                    ElevatedButton.icon(
-                      onPressed: _iniciar,
-                      icon: const Icon(Icons.play_arrow),
-                      label: Text(_segundosRestantes == duracionTotal ? _c.t('iniciar') : _c.t('reanudar')),
-                    )
-                  else
-                    ElevatedButton.icon(
-                      onPressed: _pausar,
-                      icon: const Icon(Icons.pause),
-                      label: Text(_c.t('pausar')),
-                    ),
-                  if (_fase != _FasePomodoro.trabajo)
-                    OutlinedButton.icon(
-                      onPressed: _saltarDescanso,
-                      icon: const Icon(Icons.skip_next),
-                      label: Text(_c.t('saltar_descanso')),
-                    ),
-                  OutlinedButton.icon(
-                    onPressed: _terminar,
-                    icon: const Icon(Icons.stop),
-                    label: Text(_c.t('terminar')),
+            ),
+            SwitchListTile(
+              title: Text(_c.t('modo_continuo')),
+              value: _modoContinuo,
+              onChanged: (v) => setState(() => _modoContinuo = v),
+            ),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                if (!_corriendo)
+                  ElevatedButton.icon(
+                    onPressed: _iniciar,
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(
+                        _segundosRestantes == duracionTotal ? _c.t('iniciar') : _c.t('reanudar')),
+                  )
+                else
+                  ElevatedButton.icon(
+                    onPressed: _pausar,
+                    icon: const Icon(Icons.pause),
+                    label: Text(_c.t('pausar')),
                   ),
-                ],
-              ),
-            ],
-          ),
+                if (_fase != _FasePomodoro.trabajo)
+                  OutlinedButton.icon(
+                    onPressed: _saltarDescanso,
+                    icon: const Icon(Icons.skip_next),
+                    label: Text(_c.t('saltar_descanso')),
+                  ),
+                OutlinedButton.icon(
+                  onPressed: _terminar,
+                  icon: const Icon(Icons.stop),
+                  label: Text(_c.t('terminar')),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
