@@ -815,6 +815,11 @@ class Traducciones {
       Idioma.castellano: 'Última',
       Idioma.ingles: 'Last',
     },
+    'sync_nube_vacia': {
+      Idioma.valenciano: "Encara no hi ha dades en el núvol. Puja-les primer des del mòbil.",
+      Idioma.castellano: 'Todavía no hay datos en la nube. Súbelos primero desde el móvil.',
+      Idioma.ingles: 'There is no data in the cloud yet. Upload it from your phone first.',
+    },
     'sync_datos_actualizados': {
       Idioma.valenciano: "Dades actualitzades des d'un altre dispositiu",
       Idioma.castellano: 'Datos actualizados desde otro dispositivo',

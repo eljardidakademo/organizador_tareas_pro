@@ -150,6 +150,9 @@ class _PantallaAjustesState extends State<PantallaAjustes> {
       case ResultadoSync.desactivada:
         _avisar(_t('sync_desactivada'));
         break;
+      case ResultadoSync.nubeVacia:
+        _avisar(_t('sync_nube_vacia'));
+        break;
       default:
         _avisar(_t('sync_ok'));
     }

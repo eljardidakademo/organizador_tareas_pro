@@ -11,7 +11,7 @@ import '../models/configuracion_app.dart';
 import 'persistencia_service.dart';
 
 /// Resultado de un intento de sincronización.
-enum ResultadoSync { sinCambios, descargado, subido, error, desactivada }
+enum ResultadoSync { sinCambios, descargado, subido, nubeVacia, error, desactivada }
 
 /// Sincroniza los datos entre el móvil y la web a través de un Google Apps
 /// Script (que guarda una copia de todo en un archivo de tu Google Drive).
@@ -131,7 +131,7 @@ class ServicioSync {
     if (!activa) return ResultadoSync.desactivada;
     try {
       final remoto = await _leerNube();
-      if (remoto['datos'] == null) return ResultadoSync.sinCambios;
+      if (remoto['datos'] == null) return ResultadoSync.nubeVacia;
       await _aplicarDatos(
           Map<String, dynamic>.from(remoto['datos']), ((remoto['modificado'] ?? 0) as num).toInt());
       return ResultadoSync.descargado;
